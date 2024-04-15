@@ -2,10 +2,41 @@ const express = require('express');
 const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
+const readline = require('readline');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
 async function main() {
+  // Password prompt function
+  function promptPassword() {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    return new Promise((resolve, reject) => {
+      rl.question('Enter password: ', (password) => {
+        rl.close();
+        resolve(password);
+      });
+    });
+  }
+
+  // Define your predefined password
+  const predefinedPassword = 'ma&mg';
+
+  // Prompt for password
+  async function authenticate() {
+    const password = await promptPassword();
+    if (password !== predefinedPassword) {
+      console.log('Incorrect password. Exiting.');
+      process.exit(1);
+    }
+  }
+
+  // Authenticate before starting the app
+  await authenticate();
+
   // open the database file
   const db = await open({
     filename: 'chat.db',
@@ -63,7 +94,7 @@ async function main() {
   server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
-  
 }
 
 main();
+
