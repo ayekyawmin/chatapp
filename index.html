@@ -17,8 +17,12 @@
     </style>
   </head>
   <body>
+    
     <ul id="messages"></ul>
+    <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
+    <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
     <form id="form" action="">
+
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
@@ -32,14 +36,77 @@
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const messages = document.getElementById('messages');
+
+        const typingIndicator = document.getElementById('typing-indicator'); // New element to display typing indicator
+        const usageIndicator = document.getElementById('usage-indicator');
+
+
+// Function to display typing indicator
+const displayTypingIndicator = (text) => {
+  typingIndicator.textContent = text;
+};
+
+
+// Function to clear typing indicator
+const clearTypingIndicator = () => {
+  typingIndicator.textContent = ''; // Clear the text content
+};
+
+// Function to emit typing events
+const emitTypingEvent = () => {
+  socket.emit('typing', true); // Emit 'typing' event with false to signal stop typing
+};
+
+// Function to emit stop typing events
+const emitStopTypingEvent = () => {
+  socket.emit('typing', false); // Emit 'typing' event with false to signal stop typing
+};
+
+// Event listener for input events
+input.addEventListener('input', () => {
+
+   if (input.value) {
+    emitTypingEvent();
+  } else {
+    emitStopTypingEvent();
+  }
+});
+
+
+
       
         form.addEventListener('submit', (e) => {
           e.preventDefault();
           if (input.value) {
             socket.emit('chat message', input.value);
             input.value = '';
+            emitStopTypingEvent();
           }
         });
+
+            // Handle 'typing' event from the server
+    socket.on('typing', (text) => {
+      displayTypingIndicator(text);
+    });
+
+    // Handle 'stop typing' event from the server
+    socket.on('stop typing', () => {
+      clearTypingIndicator();
+    });
+
+    const appUsageIndicator = (activeClientsCount) => {
+  if (activeClientsCount >= 2) {
+    usageIndicator.textContent = 'Other side is using the application';
+  } else {
+    usageIndicator.textContent = '';
+  }
+};
+
+// Event listener to update app usage indicator based on the count of active clients
+socket.on('activeClients', (activeClientsCount) => {
+  appUsageIndicator(activeClientsCount);
+});
+
       
         socket.on('chat message', (msg, serverOffset) => {
           const item = document.createElement('li');
@@ -47,6 +114,7 @@
           messages.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
           socket.auth.serverOffset = serverOffset;
+
         });
       </script>
   </body>

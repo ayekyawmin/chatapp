@@ -32,6 +32,21 @@ async function main() {
   });
 
   io.on('connection', async (socket) => {
+
+
+  // Listen for 'typing' events from the client
+  socket.on('typing', (isTyping) => {
+    if (isTyping) {
+      // Broadcast 'typing' event to all clients except the sender
+      socket.broadcast.emit('typing', `typing...`);
+    } else {
+      // Broadcast 'stop typing' event to all clients except the sender
+      socket.broadcast.emit('stop typing', `stopped typing.`);
+    }
+  });
+
+
+
     socket.on('chat message', async (msg) => {
       let result;
       try {
@@ -58,13 +73,25 @@ async function main() {
     }
   });
 
-  const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
+  // Inside your server-side code (not provided)
+let activeClients = 0;
 
-  server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+io.on('connection', (socket) => {
+  activeClients++;
+
+  // Emit the updated count of active clients to all clients
+  io.emit('activeClients', activeClients);
+
+  socket.on('disconnect', () => {
+    activeClients--;
+    io.emit('activeClients', activeClients);
   });
-  
+});
+
+
+  server.listen(3000, () => {
+    console.log('server running at http://localhost:3000');
+  });
 }
 
 main();
-
