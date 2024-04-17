@@ -4,118 +4,183 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>mkctl</title>
     <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      body { 
+        margin: 0; 
+        padding-bottom: 3rem; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      }
 
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+      #form { 
+        background: rgba(0, 0, 0, 0.15); 
+        padding: 0.25rem; 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        display: flex; 
+        height: 3rem; 
+        box-sizing: border-box; 
+        backdrop-filter: blur(10px); 
+      }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+      #input { 
+        border: none; 
+        padding: 0 1rem; 
+        flex-grow: 1; 
+        border-radius: 2rem; 
+        margin: 0.25rem; 
+      }
+
+      #input:focus { 
+        outline: none; 
+      }
+
+      #form > button { 
+        background: #333; 
+        border: none; 
+        padding: 0 1rem; 
+        margin: 0.25rem; 
+        border-radius: 3px; 
+        outline: none; 
+        color: #fff; 
+      }
+
+      #messages { 
+        list-style-type: none; 
+        margin: 0; 
+        padding: 0; 
+      }
+
+      #messages > li { 
+        padding: 0.5rem 1rem; 
+      }
+
+
+      
+      /* Customize timestamp */
+      .timestamp { 
+        font-size: 0.6em; 
+        /* Adjust font size */ 
+        color: gray; 
+        /* Adjust color */ 
+      }
+
     </style>
   </head>
   <body>
     
     <ul id="messages"></ul>
+
     <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
     <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
     <form id="form" action="">
-
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io({
-          auth: {
-            serverOffset: 0
-          }
+      const socket = io({
+        auth: {
+          serverOffset: 0
+        }
+      });
+
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const messages = document.getElementById('messages');
+      const typingIndicator = document.getElementById('typing-indicator');
+      const usageIndicator = document.getElementById('usage-indicator');
+
+      // Function to display typing indicator
+      const displayTypingIndicator = (text) => {
+        typingIndicator.textContent = text;
+      };
+
+      // Function to clear typing indicator
+      const clearTypingIndicator = () => {
+        typingIndicator.textContent = '';
+      };
+
+      // Function to emit typing events
+      const emitTypingEvent = () => {
+        socket.emit('typing', true);
+      };
+
+      // Function to emit stop typing events
+      const emitStopTypingEvent = () => {
+        socket.emit('typing', false);
+      };
+
+      // Event listener for input events
+      input.addEventListener('input', () => {
+        if (input.value) {
+          emitTypingEvent();
+        } else {
+          emitStopTypingEvent();
+        }
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const timestamp = new Date().toLocaleString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
         });
-      
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messages = document.getElementById('messages');
+        if (input.value) {
+          const messageWithTimestamp = `${input.value} <span class="timestamp">( ${timestamp} )</span>`;
+          socket.emit('chat message', messageWithTimestamp);
+          input.value = '';
+          emitStopTypingEvent();
+        }
+      });
 
-        const typingIndicator = document.getElementById('typing-indicator'); // New element to display typing indicator
-        const usageIndicator = document.getElementById('usage-indicator');
+      // Handle 'typing' event from the server
+      socket.on('typing', (text) => {
+        displayTypingIndicator(text);
+      });
 
+      // Handle 'stop typing' event from the server
+      socket.on('stop typing', () => {
+        clearTypingIndicator();
+      });
 
-// Function to display typing indicator
-const displayTypingIndicator = (text) => {
-  typingIndicator.textContent = text;
-};
+      // Call appUsageIndicator with activeClientsCount as an argument
+      socket.on('activeClients', (activeClientsCount) => {
+        appUsageIndicator(activeClientsCount);
+      });
 
+      // Define appUsageIndicator function to accept activeClientsCount as an argument
+      const appUsageIndicator = (activeClientsCount) => {
+        if (activeClientsCount === 2) {
+          usageIndicator.textContent = `Ma and Mg are using the application.`;
+        } else if(activeClientsCount === 1){
+          usageIndicator.textContent = 'You are using the application alone.';
+        } else if(activeClientsCount > 2){
+          usageIndicator.textContent = 'Stranger is incoming to the Application';
+        
+        } else {
+          usageIndicator.textContent = '';
+        }
+      };
 
-// Function to clear typing indicator
-const clearTypingIndicator = () => {
-  typingIndicator.textContent = ''; // Clear the text content
-};
+      // Event listener to update app usage indicator based on the count of active clients
+      socket.on('activeClients', (activeClientsCount) => {
+        appUsageIndicator(activeClientsCount);
+      });
 
-// Function to emit typing events
-const emitTypingEvent = () => {
-  socket.emit('typing', true); // Emit 'typing' event with false to signal stop typing
-};
-
-// Function to emit stop typing events
-const emitStopTypingEvent = () => {
-  socket.emit('typing', false); // Emit 'typing' event with false to signal stop typing
-};
-
-// Event listener for input events
-input.addEventListener('input', () => {
-
-   if (input.value) {
-    emitTypingEvent();
-  } else {
-    emitStopTypingEvent();
-  }
-});
-
-
-
-      
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
-          if (input.value) {
-            socket.emit('chat message', input.value);
-            input.value = '';
-            emitStopTypingEvent();
-          }
-        });
-
-            // Handle 'typing' event from the server
-    socket.on('typing', (text) => {
-      displayTypingIndicator(text);
-    });
-
-    // Handle 'stop typing' event from the server
-    socket.on('stop typing', () => {
-      clearTypingIndicator();
-    });
-
-    const appUsageIndicator = (activeClientsCount) => {
-  if (activeClientsCount >= 2) {
-    usageIndicator.textContent = 'Other side is using the application';
-  } else {
-    usageIndicator.textContent = '';
-  }
-};
-
-// Event listener to update app usage indicator based on the count of active clients
-socket.on('activeClients', (activeClientsCount) => {
-  appUsageIndicator(activeClientsCount);
-});
-
-      
-        socket.on('chat message', (msg, serverOffset) => {
-          const item = document.createElement('li');
-          item.textContent = msg;
-          messages.appendChild(item);
-          window.scrollTo(0, document.body.scrollHeight);
-          socket.auth.serverOffset = serverOffset;
-
-        });
-      </script>
+      socket.on('chat message', (msg, serverOffset) => {
+        const item = document.createElement('li');
+        item.innerHTML = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        socket.auth.serverOffset = serverOffset;
+      });
+    </script>
   </body>
 </html>
+

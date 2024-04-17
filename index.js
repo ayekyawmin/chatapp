@@ -1,18 +1,16 @@
 const express = require('express');
-const { createServer } = require('node:http');
-const { join } = require('node:path');
+const { createServer } = require('http'); // Change from 'node:http' to 'http'
+const { join } = require('path');
 const { Server } = require('socket.io');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
 async function main() {
-  // open the database file
   const db = await open({
     filename: 'chat.db',
     driver: sqlite3.Database
   });
 
-  // create our 'messages' table (you can ignore the 'client_offset' column for now)
   await db.exec(`
     CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,39 +25,51 @@ async function main() {
     connectionStateRecovery: {}
   });
 
+  // Map to store client IDs and their corresponding background colors
+  const clientColors = new Map();
+
   app.get('/', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
   });
 
   io.on('connection', async (socket) => {
-
-
-  // Listen for 'typing' events from the client
-  socket.on('typing', (isTyping) => {
-    if (isTyping) {
-      // Broadcast 'typing' event to all clients except the sender
-      socket.broadcast.emit('typing', `typing...`);
+    // Assign background color based on the order of connection
+    let backgroundColor;
+    if (clientColors.size === 0) {
+      backgroundColor = 'aliceblue ';
+    } else if (clientColors.size === 1) {
+      backgroundColor = 'antiquewhite';
     } else {
-      // Broadcast 'stop typing' event to all clients except the sender
-      socket.broadcast.emit('stop typing', `stopped typing.`);
+      backgroundColor = 'red';
     }
-  });
 
+    // Store the client ID and its background color
+    clientColors.set(socket.id, backgroundColor);
 
+    // Listen for 'typing' events from the client
+    socket.on('typing', (isTyping) => {
+      if (isTyping) {
+        socket.broadcast.emit('typing', `typing...`);
+      } else {
+        socket.broadcast.emit('stop typing', `stopped typing.`);
+      }
+    });
 
     socket.on('chat message', async (msg) => {
       let result;
       try {
         result = await db.run('INSERT INTO messages (content) VALUES (?)', msg);
       } catch (e) {
-        // TODO handle the failure
         return;
       }
-      io.emit('chat message', msg, result.lastID);
+
+      const messageClass = 'message'; // Add a class for styling
+      const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
+
+      io.emit('chat message', messageWithClass, result.lastID);
     });
-  
+
     if (!socket.recovered) {
-      // if the connection state recovery was not successful
       try {
         await db.each('SELECT id, content FROM messages WHERE id > ?',
           [socket.handshake.auth.serverOffset || 0],
@@ -68,33 +78,34 @@ async function main() {
           }
         )
       } catch (e) {
-        // something went wrong
+        // Handle error
       }
     }
   });
 
-  // Inside your server-side code (not provided)
-let activeClients = 0;
+  let activeClients = 0;
 
-io.on('connection', (socket) => {
-  activeClients++;
+  io.on('connection', (socket) => {
+    activeClients++;
 
-  // Emit the updated count of active clients to all clients
-  io.emit('activeClients', activeClients);
-
-  socket.on('disconnect', () => {
-    activeClients--;
     io.emit('activeClients', activeClients);
+
+    socket.on('disconnect', () => {
+      activeClients--;
+      io.emit('activeClients', activeClients);
+
+      // Remove the disconnected client from the map
+      clientColors.delete(socket.id);
+    });
   });
-});
 
-
-const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
-
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
 }
 
 main();
+
+
+
