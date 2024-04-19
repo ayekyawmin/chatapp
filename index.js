@@ -1,4 +1,3 @@
-User
 const express = require('express');
 const { createServer } = require('http'); // Change from 'node:http' to 'http'
 const { join } = require('path');
