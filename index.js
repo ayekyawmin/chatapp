@@ -6,11 +6,11 @@ const { Pool } = require('pg'); // Import pg package
 
 async function main() {
   const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: 'qhacdxltgffiei',
+    host: 'ec2-107-21-67-46.compute-1.amazonaws.com',
+    database: 'd8aun3t0a68j57',
+    password: 'c2f2bdc4e98a609760428fe21403f257c6aa67cdd6f56f29976f450deb23e372',
+    port: 5432,
   });
 
   const app = express();
