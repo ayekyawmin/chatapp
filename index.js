@@ -58,16 +58,17 @@ async function main() {
       try {
         // Insert message into PostgreSQL database
         const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
+        console.log('Message inserted successfully:', result.rows[0]); // Log successful insertion
         const messageId = result.rows[0].id;
-  
+      
         const messageClass = 'message'; // Add a class for styling
         const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
-  
+      
         io.emit('chat message', messageWithClass, result.lastID);
       } catch (e) {
         console.error('Error inserting message:', e);
       }
-    });
+      
   
     // Query and emit prior messages when a new connection is established
     try {
