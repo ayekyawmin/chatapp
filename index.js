@@ -67,16 +67,11 @@ async function main() {
         console.error('Error inserting message:', e);
       }
     });
-  
-    // Query and emit prior messages when a new connection is established
-    try {
-      const result = await pool.query('SELECT id, content FROM messages');
-      result.rows.forEach(row => {
-        socket.emit('chat message', row.content, row.id);
-      });
-    } catch (e) {
-      console.error('Error fetching prior messages:', e);
-    }
+
+    //I cut this
+
+
+    //until here
   
     // Increase active clients count and emit it to all clients
     activeClients++;
