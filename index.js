@@ -5,13 +5,12 @@ const { Server } = require('socket.io');
 const { Pool } = require('pg'); // Import pg package
 
 async function main() {
-  // Create a new Pool instance for PostgreSQL
   const pool = new Pool({
-    user: 'yaiponxglfmwnk',
-    host: 'ec2-52-54-200-216.compute-1.amazonaws.com',
-    database: 'dbcs74cj2vsrg4',
-    password: '8f834d71761135f13548bb8aa197a8a08c9f029b95e64e6ee84feabcde21eeb2',
-    port: 5432, // PostgreSQL default port
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
   });
 
   const app = express();
@@ -58,18 +57,17 @@ async function main() {
       try {
         // Insert message into PostgreSQL database
         const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
-        console.log('Message inserted successfully:', result.rows[0]); // Log successful insertion
         const messageId = result.rows[0].id;
-      
+  
         const messageClass = 'message'; // Add a class for styling
         const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
-      
+  
         io.emit('chat message', messageWithClass, result.lastID);
       } catch (e) {
         console.error('Error inserting message:', e);
       }
     });
-
+  
     // Query and emit prior messages when a new connection is established
     try {
       const result = await pool.query('SELECT id, content FROM messages');
@@ -93,6 +91,7 @@ async function main() {
       clientColors.delete(socket.id);
     });
   });
+  
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
@@ -101,7 +100,6 @@ async function main() {
 }
 
 main();
-
 
 
 
