@@ -68,8 +68,8 @@ async function main() {
       } catch (e) {
         console.error('Error inserting message:', e);
       }
-      
-  
+    });
+
     // Query and emit prior messages when a new connection is established
     try {
       const result = await pool.query('SELECT id, content FROM messages');
@@ -93,7 +93,6 @@ async function main() {
       clientColors.delete(socket.id);
     });
   });
-  
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
@@ -102,6 +101,7 @@ async function main() {
 }
 
 main();
+
 
 
 
