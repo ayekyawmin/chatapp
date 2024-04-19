@@ -2,22 +2,17 @@ const express = require('express');
 const { createServer } = require('http'); // Change from 'node:http' to 'http'
 const { join } = require('path');
 const { Server } = require('socket.io');
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
+const { Pool } = require('pg'); // Import pg package
 
 async function main() {
-  const db = await open({
-    filename: 'chat.db',
-    driver: sqlite3.Database
+  // Create a new Pool instance for PostgreSQL
+  const pool = new Pool({
+    user: 'yaiponxglfmwnk',
+    host: 'ec2-52-54-200-216.compute-1.amazonaws.com',
+    database: 'dbcs74cj2vsrg4',
+    password: '8f834d71761135f13548bb8aa197a8a08c9f029b95e64e6ee84feabcde21eeb2',
+    port: 5432, // PostgreSQL default port
   });
-
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        client_offset TEXT UNIQUE,
-        content TEXT
-    );
-  `);
 
   const app = express();
   const server = createServer(app);
@@ -28,24 +23,26 @@ async function main() {
   // Map to store client IDs and their corresponding background colors
   const clientColors = new Map();
 
-  app.get('/', (req, res) => {
+  app.get('/',(req, res) => { // Apply authentication middleware to the root route
     res.sendFile(join(__dirname, 'index.html'));
   });
+
+  let activeClients = 0; // Define activeClients variable outside of the connection event handler
 
   io.on('connection', async (socket) => {
     // Assign background color based on the order of connection
     let backgroundColor;
     if (clientColors.size === 0) {
-      backgroundColor = 'aliceblue ';
+      backgroundColor = 'aliceblue';
     } else if (clientColors.size === 1) {
       backgroundColor = 'antiquewhite';
     } else {
       backgroundColor = 'red';
     }
-
+  
     // Store the client ID and its background color
     clientColors.set(socket.id, backgroundColor);
-
+  
     // Listen for 'typing' events from the client
     socket.on('typing', (isTyping) => {
       if (isTyping) {
@@ -54,50 +51,48 @@ async function main() {
         socket.broadcast.emit('stop typing', `stopped typing.`);
       }
     });
-
+  
     socket.on('chat message', async (msg) => {
-      let result;
+      const clientOffset = socket.handshake.auth.clientOffset || 0;
+  
       try {
-        result = await db.run('INSERT INTO messages (content) VALUES (?)', msg);
+        // Insert message into PostgreSQL database
+        const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
+        const messageId = result.rows[0].id;
+  
+        const messageClass = 'message'; // Add a class for styling
+        const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
+  
+        io.emit('chat message', messageWithClass, result.lastID);
       } catch (e) {
-        return;
+        console.error('Error inserting message:', e);
       }
-
-      const messageClass = 'message'; // Add a class for styling
-      const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
-
-      io.emit('chat message', messageWithClass, result.lastID);
     });
-
-    if (!socket.recovered) {
-      try {
-        await db.each('SELECT id, content FROM messages WHERE id > ?',
-          [socket.handshake.auth.serverOffset || 0],
-          (_err, row) => {
-            socket.emit('chat message', row.content, row.id);
-          }
-        )
-      } catch (e) {
-        // Handle error
-      }
+  
+    // Query and emit prior messages when a new connection is established
+    try {
+      const result = await pool.query('SELECT id, content FROM messages');
+      result.rows.forEach(row => {
+        socket.emit('chat message', row.content, row.id);
+      });
+    } catch (e) {
+      console.error('Error fetching prior messages:', e);
     }
-  });
-
-  let activeClients = 0;
-
-  io.on('connection', (socket) => {
+  
+    // Increase active clients count and emit it to all clients
     activeClients++;
-
     io.emit('activeClients', activeClients);
-
+  
+    // Handle client disconnect
     socket.on('disconnect', () => {
       activeClients--;
       io.emit('activeClients', activeClients);
-
+  
       // Remove the disconnected client from the map
       clientColors.delete(socket.id);
     });
   });
+  
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
@@ -106,6 +101,11 @@ async function main() {
 }
 
 main();
+
+
+
+
+
 
 
 
