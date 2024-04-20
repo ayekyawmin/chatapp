@@ -56,20 +56,18 @@ async function main() {
   
     socket.on('chat message', async (msg) => {
       const clientOffset = socket.handshake.auth.clientOffset || 0;
-  
+    
       try {
         // Insert message into PostgreSQL database
         const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
         const messageId = result.rows[0].id;
-  
-        const messageClass = 'message'; // Add a class for styling
-        const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
-  
-        io.emit('chat message', messageWithClass, result.lastID);
+    
+        io.emit('chat message', msg, clientOffset);
       } catch (e) {
         console.error('Error inserting message:', e);
       }
     });
+    
   
     // Query and emit prior messages when a new connection is established
     try {
