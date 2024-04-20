@@ -14,8 +14,8 @@ async function main() {
   //await db.exec(`
    // CREATE TABLE IF NOT EXISTS messages (
     //    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //    client_offset TEXT UNIQUE,
-     //   content TEXT
+     //   client_offset TEXT UNIQUE,
+    //    content TEXT
    // );
  // `);
 
