@@ -12,7 +12,7 @@ async function main() {
     password: 'd79b77f0982cf3383572a878d6b06bfde4b437eb861e9a80d6bea7fe7dabbc93',
     port: 5432,
     ssl: {
-      rejectUnauthorized: true // Added SSL configuration
+      rejectUnauthorized: false // Added SSL configuration
     }
   });
 
@@ -56,18 +56,20 @@ async function main() {
   
     socket.on('chat message', async (msg) => {
       const clientOffset = socket.handshake.auth.clientOffset || 0;
-    
+  
       try {
         // Insert message into PostgreSQL database
         const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
         const messageId = result.rows[0].id;
-    
-        io.emit('chat message', msg, clientOffset);
+  
+        const messageClass = 'message'; // Add a class for styling
+        const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
+  
+        io.emit('chat message', messageWithClass, result.lastID);
       } catch (e) {
         console.error('Error inserting message:', e);
       }
     });
-    
   
     // Query and emit prior messages when a new connection is established
     try {
