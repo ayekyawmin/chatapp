@@ -8,11 +8,14 @@ async function main() {
   let activeClients = 0;
 
   const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'chat_db',
-    password: 'Nyanminthant34$',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    ssl: {
+      rejectUnauthorized: false // Added SSL configuration
+    }
   });
 
   const app = express();
