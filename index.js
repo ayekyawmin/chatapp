@@ -75,7 +75,7 @@ async function main() {
   
     // Query and emit prior messages when a new connection is established
     try {
-      const result = await pool.query('SELECT id, content FROM messages ORDER BY timestamp ASC');
+      const result = await pool.query('SELECT id, content FROM messages ORDER BY id ASC');
       result.rows.forEach(row => {
         socket.emit('chat message', row.content, row.id);
       });
