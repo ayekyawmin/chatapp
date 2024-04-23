@@ -56,9 +56,9 @@
       }
 
       .message {
-        background-color: inherit; /* This should match the background color assigned dynamically */
-        /* Add any other styling you want for messages */
-      }
+    background-color: inherit; /* This should match the background color assigned dynamically */
+    /* Add any other styling you want for messages */
+  }
       
       /* Customize timestamp */
       .timestamp { 
@@ -68,48 +68,16 @@
         /* Adjust color */ 
       }
 
-      /* Optional: Style for the file name display */
-      #file-name {
-        display: none;
-      }
-
-            /* Hide the default file input */
-            #file-input {
-        display: none;
-      }
-
-      #image-preview {
-        width: 100px;
-        height: 100px;
-        overflow: hidden; /* Ensure the image does not exceed the specified dimensions */
-        margin-top: 10px; /* Adjust margin */
-      }
-      #image-preview img {
-        width: 100%; /* Make the image fill the container horizontally */
-        height: auto; /* Maintain the aspect ratio */
-      }
-
     </style>
   </head>
   <body>
-
     
     <ul id="messages"></ul>
-    
+
     <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
     <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
-  
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>   
-      <!-- Hidden file input -->
-      <input type="file" accept="image/*" id="file-input" multiple>
-  
-      <!-- Custom button for selecting files -->
-      <button id="select-button">Photos</button>
-
-
-
-      
+      <input id="input" autocomplete="off" /><button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -155,50 +123,6 @@
         }
       });
 
-      // Event listener for file input change
-      const fileInput = document.getElementById('file-input');
-      const selectButton = document.getElementById('select-button');
-
-
-      selectButton.addEventListener('click', function() {
-        fileInput.click(); // Trigger click event on the hidden file input
-      });
-
-      fileInput.addEventListener('change', function(event) {
-        const files = event.target.files;
-        for (const file of files) {
-          const reader = new FileReader();
-          reader.onload = function() {
-            const binaryData = reader.result;
-            socket.emit('image message', binaryData);
-          };
-          reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
-        }
-      });
-
-
-      socket.on('chat message', (msg, serverOffset) => {
-        appendMessage(msg, serverOffset);
-      });
-
-      socket.on('image message', function(binaryData) {
-        const blob = new Blob([binaryData], { type: 'image/jpeg' }); // Adjust the type based on your image type
-        const imageUrl = URL.createObjectURL(blob);
-        const imgPreview = document.createElement('div');
-        imgPreview.id = 'image-preview';
-        imgPreview.innerHTML = `<img src="${imageUrl}">`;
-        messages.appendChild(imgPreview);
-      });
-
-      // Function to append message to the messages list
-      function appendMessage(msg, serverOffset) {
-        const item = document.createElement('li');
-        item.innerHTML = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-        socket.auth.serverOffset = serverOffset;
-      }
-
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const timestamp = new Date().toLocaleString('en-US', {
@@ -217,7 +141,6 @@
           emitStopTypingEvent();
         }
       });
-
 
       // Handle 'typing' event from the server
       socket.on('typing', (text) => {
@@ -253,15 +176,14 @@
         appUsageIndicator(activeClientsCount);
       });
 
-      // Event listener for input events
-      input.addEventListener('input', () => {
-        if (input.value) {
-          emitTypingEvent();
-        } else {
-          emitStopTypingEvent();
-        }
+      socket.on('chat message', (msg, serverOffset) => {
+        const item = document.createElement('li');
+        item.innerHTML = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        socket.auth.serverOffset = serverOffset;
       });
-
     </script>
   </body>
 </html>
+
