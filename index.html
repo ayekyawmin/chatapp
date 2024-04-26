@@ -165,16 +165,29 @@
       });
 
       fileInput.addEventListener('change', function(event) {
-        const files = event.target.files;
-        for (const file of files) {
-          const reader = new FileReader();
-          reader.onload = function() {
-            const binaryData = reader.result;
-            socket.emit('image message', binaryData);
-          };
-          reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
-        }
-      });
+  const files = event.target.files;
+  for (const file of files) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      const image = new Image();
+      image.src = reader.result;
+      image.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        // Set canvas dimensions to 10% of the original image size
+        canvas.width = image.width * 0.1;
+        canvas.height = image.height * 0.1;
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        // Convert canvas content back to a compressed image
+        canvas.toBlob(function(blob) {
+          socket.emit('image message', blob); // Emit the compressed image
+        }, 'image/jpeg', 0.1); // Adjust compression quality here (0.1 means 10% quality)
+      };
+    };
+    reader.readAsDataURL(file); // Read the file as a data URL
+  }
+});
+
 
 
       socket.on('chat message', (msg, serverOffset) => {
