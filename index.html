@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -93,53 +92,60 @@
     </style>
   </head>
   <body>
+
+    
     <ul id="messages"></ul>
-    <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div>
-    <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div>
+    
+    <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
+    <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
+  
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+      <input id="input" autocomplete="off" /><button>Send</button>   
       <!-- Hidden file input -->
       <input type="file" accept="image/*" id="file-input" multiple>
+  
       <!-- Custom button for selecting files -->
       <button id="select-button">Photos</button>
-    </form>
-  
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/compressor.min.js"></script>
 
+
+
+      
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io({
         auth: {
           serverOffset: 0
         }
       });
-  
+
       const form = document.getElementById('form');
       const input = document.getElementById('input');
       const messages = document.getElementById('messages');
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
-  
+
       // Function to display typing indicator
       const displayTypingIndicator = (text) => {
         typingIndicator.textContent = text;
       };
-  
+
       // Function to clear typing indicator
       const clearTypingIndicator = () => {
         typingIndicator.textContent = '';
       };
-  
+
       // Function to emit typing events
       const emitTypingEvent = () => {
         socket.emit('typing', true);
       };
-  
+
       // Function to emit stop typing events
       const emitStopTypingEvent = () => {
         socket.emit('typing', false);
       };
-  
+
       // Event listener for input events
       input.addEventListener('input', () => {
         if (input.value) {
@@ -148,47 +154,33 @@
           emitStopTypingEvent();
         }
       });
-  
+
       // Event listener for file input change
       const fileInput = document.getElementById('file-input');
       const selectButton = document.getElementById('select-button');
-  
+
+
       selectButton.addEventListener('click', function() {
         fileInput.click(); // Trigger click event on the hidden file input
       });
-  
-      fileInput.addEventListener('change', async function(event) {
+
+      fileInput.addEventListener('change', function(event) {
         const files = event.target.files;
         for (const file of files) {
-          // Compress the image
-          const compressedImage = await compressImage(file);
-          if (compressedImage) {
-            // Convert the compressed image to base64
-            const reader = new FileReader();
-            reader.onload = function() {
-              const binaryData = reader.result;
-              socket.emit('image message', binaryData);
-            };
-            reader.readAsArrayBuffer(compressedImage); // Read the file as an ArrayBuffer
-          }
+          const reader = new FileReader();
+          reader.onload = function() {
+            const binaryData = reader.result;
+            socket.emit('image message', binaryData);
+          };
+          reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
         }
       });
-  
-      // Function to compress the image
-      const compressImage = async (file) => {
-        try {
-          const compressedFile = await imageCompression(file, 0.7); // Compress the image with a quality of 70%
-          return compressedFile;
-        } catch (error) {
-          console.error('Image compression error:', error);
-          return null;
-        }
-      };
-  
+
+
       socket.on('chat message', (msg, serverOffset) => {
         appendMessage(msg, serverOffset);
       });
-  
+
       socket.on('image message', function(binaryData) {
         const blob = new Blob([binaryData], { type: 'image/jpeg' }); // Adjust the type based on your image type
         const imageUrl = URL.createObjectURL(blob);
@@ -197,7 +189,7 @@
         imgPreview.innerHTML = `<img src="${imageUrl}">`;
         messages.appendChild(imgPreview);
       });
-  
+
       // Function to append message to the messages list
       function appendMessage(msg, serverOffset) {
         const item = document.createElement('li');
@@ -206,7 +198,7 @@
         window.scrollTo(0, document.body.scrollHeight);
         socket.auth.serverOffset = serverOffset;
       }
-  
+
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const timestamp = new Date().toLocaleString('en-US', {
@@ -225,22 +217,23 @@
           emitStopTypingEvent();
         }
       });
-  
+
+
       // Handle 'typing' event from the server
       socket.on('typing', (text) => {
         displayTypingIndicator(text);
       });
-  
+
       // Handle 'stop typing' event from the server
       socket.on('stop typing', () => {
         clearTypingIndicator();
       });
-  
+
       // Call appUsageIndicator with activeClientsCount as an argument
       socket.on('activeClients', (activeClientsCount) => {
         appUsageIndicator(activeClientsCount);
       });
-  
+
       // Define appUsageIndicator function to accept activeClientsCount as an argument
       const appUsageIndicator = (activeClientsCount) => {
         if (activeClientsCount === 2) {
@@ -249,16 +242,17 @@
           usageIndicator.textContent = 'You are using the application alone.';
         } else if(activeClientsCount > 2){
           usageIndicator.textContent = 'Stranger is incoming to the Application';
+        
         } else {
           usageIndicator.textContent = '';
         }
       };
-  
+
       // Event listener to update app usage indicator based on the count of active clients
       socket.on('activeClients', (activeClientsCount) => {
         appUsageIndicator(activeClientsCount);
       });
-  
+
       // Event listener for input events
       input.addEventListener('input', () => {
         if (input.value) {
@@ -267,7 +261,7 @@
           emitStopTypingEvent();
         }
       });
-  
+
     </script>
   </body>
-  </html>
+</html>
