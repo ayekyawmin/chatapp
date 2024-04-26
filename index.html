@@ -90,8 +90,6 @@
       }
 
     </style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.0.8/compressor.min.js"></script>
   </head>
   <body>
 
@@ -115,8 +113,6 @@
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
-
-
     <script>
       const socket = io({
         auth: {
@@ -169,26 +165,16 @@
       });
 
       fileInput.addEventListener('change', function(event) {
-  const files = event.target.files;
-  for (const file of files) {
-    new Compressor(file, {
-      quality: 0.6, // Adjust the image quality as needed (0.6 means 60%)
-      maxWidth: 800, // Adjust the maximum width as needed
-      success(result) {
-        const reader = new FileReader();
-        reader.onload = function() {
-          const binaryData = reader.result;
-          socket.emit('image message', binaryData);
-        };
-        reader.readAsArrayBuffer(result); // Read the file as an ArrayBuffer
-      },
-      error(err) {
-        console.error('Compression error:', err);
-      },
-    });
-  }
-});
-
+        const files = event.target.files;
+        for (const file of files) {
+          const reader = new FileReader();
+          reader.onload = function() {
+            const binaryData = reader.result;
+            socket.emit('image message', binaryData);
+          };
+          reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+        }
+      });
 
 
       socket.on('chat message', (msg, serverOffset) => {
