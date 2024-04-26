@@ -151,14 +151,22 @@ async function main() {
       }
       const { content, image } = message.rows[0];
       if (image) {
-        res.setHeader('Content-Type', 'image/jpeg');
+        // Set the Content-Type header to indicate that an image is being sent
+        res.setHeader('Content-Type', 'image/jpeg'); // Adjust the content type based on the actual image type
+        // Send the image binary data
+        res.send(image);
+      } else {
+        // Set the Content-Type header for regular text content
+        res.setHeader('Content-Type', 'text/plain');
+        // Send the text content
+        res.send(content);
       }
-      res.send(content);
     } catch (error) {
       console.error('Error retrieving message:', error);
       res.status(500).send('Internal Server Error');
     }
   });
+  
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
