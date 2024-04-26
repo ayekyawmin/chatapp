@@ -1,11 +1,11 @@
 const express = require('express');
-const { createServer } = require('http'); // Change from 'node:http' to 'http'
+const { createServer } = require('http');
 const { join } = require('path');
 const { Server } = require('socket.io');
-const { Pool } = require('pg'); // Import pg package
+const { Pool } = require('pg');
 
 async function main() {
-  const { Pool } = require('pg');
+  let activeClients = 0;
 
   const pool = new Pool({
     user: process.env.DB_USER,
@@ -27,11 +27,30 @@ async function main() {
   // Map to store client IDs and their corresponding background colors
   const clientColors = new Map();
 
-  app.get('/',(req, res) => { // Apply authentication middleware to the root route
+  app.get('/', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
   });
 
-  let activeClients = 0; // Define activeClients variable outside of the connection event handler
+  // Serve images directly
+  app.get('/view/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const message = await pool.query('SELECT content, image FROM massages WHERE id = $1', [id]);
+      if (message.rows.length === 0) {
+        return res.status(404).send('Message not found');
+      }
+      const { content, image } = message.rows[0];
+      if (image) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.send(image);
+      } else {
+        res.status(404).send('Not an image message');
+      }
+    } catch (error) {
+      console.error('Error retrieving message:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
   io.on('connection', async (socket) => {
     // Assign background color based on the order of connection
@@ -43,10 +62,10 @@ async function main() {
     } else {
       backgroundColor = 'red';
     }
-  
+
     // Store the client ID and its background color
     clientColors.set(socket.id, backgroundColor);
-  
+
     // Listen for 'typing' events from the client
     socket.on('typing', (isTyping) => {
       if (isTyping) {
@@ -55,48 +74,77 @@ async function main() {
         socket.broadcast.emit('stop typing', `stopped typing.`);
       }
     });
-  
+
     socket.on('chat message', async (msg) => {
-      const clientOffset = socket.handshake.auth.clientOffset || 0;
-  
       try {
-        // Insert message into PostgreSQL database
-        const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, clientOffset]);
+        const result = await pool.query('INSERT INTO massages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, socket.handshake.auth.serverOffset || 0]);
         const messageId = result.rows[0].id;
-  
-        const messageClass = 'message'; // Add a class for styling
-        const messageWithClass = `<li class="${messageClass}" style="background-color: ${backgroundColor}">${msg}</li>`;
-  
-        io.emit('chat message', messageWithClass, result.lastID);
+        const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">${msg}</li>`;
+        io.emit('chat message', messageWithClass, messageId);
       } catch (e) {
         console.error('Error inserting message:', e);
       }
     });
-  
-    // Query and emit prior messages when a new connection is established
-    try {
-      const result = await pool.query('SELECT id, content FROM messages ORDER BY id ASC');
-      result.rows.forEach(row => {
-        socket.emit('chat message', row.content, row.id);
-      });
-    } catch (e) {
-      console.error('Error fetching prior messages:', e);
+
+
+    socket.on('image message', async (base64Data) => {
+      try {
+        const result = await pool.query('INSERT INTO massages (image, client_offset) VALUES ($1, $2) RETURNING id', [Buffer.from(base64Data, 'base64'), socket.handshake.auth.serverOffset || 0]);
+        const messageId = result.rows[0].id;
+        const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${messageId}" target="_blank">View Image</a></li>`;
+        io.emit('chat message', messageWithClass, messageId);
+      } catch (e) {
+        console.error('Error inserting image message:', e);
+      }
+    });
+
+
+    if (!socket.recovered) {
+      try {
+        const result = await pool.query('SELECT id, content, image FROM massages WHERE id > $1', [socket.handshake.auth.serverOffset || 0]);
+        result.rows.forEach(row => {
+          if (row.image) {
+            const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${row.id}" target="_blank">View Image</a></li>`;
+            socket.emit('chat message', messageWithClass, row.id);
+          } else {
+            const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">${row.content}</li>`;
+            socket.emit('chat message', messageWithClass, row.id);
+          }
+        });
+      } catch (e) {
+        console.error('Error retrieving messages:', e);
+      }
     }
-  
-    // Increase active clients count and emit it to all clients
+
+
+    // Update active clients count and handle disconnections
     activeClients++;
     io.emit('activeClients', activeClients);
-  
-    // Handle client disconnect
+
     socket.on('disconnect', () => {
       activeClients--;
       io.emit('activeClients', activeClients);
-  
-      // Remove the disconnected client from the map
       clientColors.delete(socket.id);
     });
   });
-  
+
+  app.get('/view/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const message = await pool.query('SELECT content, image FROM massages WHERE id = $1', [id]);
+      if (message.rows.length === 0) {
+        return res.status(404).send('Message not found');
+      }
+      const { content, image } = message.rows[0];
+      if (image) {
+        res.setHeader('Content-Type', 'image/jpeg');
+      }
+      res.send(content);
+    } catch (error) {
+      console.error('Error retrieving message:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
   const port = process.env.PORT || 3000;
   server.listen(port, () => {
@@ -105,8 +153,3 @@ async function main() {
 }
 
 main();
-
-
-
-
-
