@@ -35,7 +35,7 @@ async function main() {
   app.get('/view/:id', async (req, res) => {
     const { id } = req.params;
     try {
-      const message = await pool.query('SELECT content, image FROM massages WHERE id = $1', [id]);
+      const message = await pool.query('SELECT content, image FROM messages WHERE id = $1', [id]);
       if (message.rows.length === 0) {
         return res.status(404).send('Message not found');
       }
