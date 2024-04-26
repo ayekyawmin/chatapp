@@ -175,8 +175,8 @@
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         // Set canvas dimensions to 10% of the original image size
-        canvas.width = image.width * 0.1;
-        canvas.height = image.height * 0.1;
+        canvas.width = image.width * 0.25;
+        canvas.height = image.height * 0.25;
         ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
         // Convert canvas content back to a compressed image
         canvas.toBlob(function(blob) {
