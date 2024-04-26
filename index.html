@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html>
-<head>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>mkctl</title>
-  <style>
-         body { 
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>mkctl</title>
+    <style>
+      body { 
         margin: 0; 
         padding-bottom: 3rem; 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
@@ -88,184 +89,180 @@
         width: 100%; /* Make the image fill the container horizontally */
         height: auto; /* Maintain the aspect ratio */
       }
-  </style>
-</head>
-<body>
-  <ul id="messages"></ul>
-  <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div>
-  <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div>
-  <form id="form" action="">
-    <input id="input" autocomplete="off" /><button>Send</button>
-    <!-- Hidden file input -->
-    <input type="file" accept="image/*" id="file-input" multiple>
-    <!-- Custom button for selecting files -->
-    <button id="select-button">Photos</button>
-  </form>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="js/compressor.js"></script>
+    </style>
+  </head>
+  <body>
 
-  <script>
-    const socket = io({
-      auth: {
-        serverOffset: 0
-      }
-    });
+    
+    <ul id="messages"></ul>
+    
+    <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
+    <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
+  
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>   
+      <!-- Hidden file input -->
+      <input type="file" accept="image/*" id="file-input" multiple>
+  
+      <!-- Custom button for selecting files -->
+      <button id="select-button">Photos</button>
 
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-    const typingIndicator = document.getElementById('typing-indicator');
-    const usageIndicator = document.getElementById('usage-indicator');
 
-    // Function to display typing indicator
-    const displayTypingIndicator = (text) => {
-      typingIndicator.textContent = text;
-    };
 
-    // Function to clear typing indicator
-    const clearTypingIndicator = () => {
-      typingIndicator.textContent = '';
-    };
+      
+    </form>
 
-    // Function to emit typing events
-    const emitTypingEvent = () => {
-      socket.emit('typing', true);
-    };
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io({
+        auth: {
+          serverOffset: 0
+        }
+      });
 
-    // Function to emit stop typing events
-    const emitStopTypingEvent = () => {
-      socket.emit('typing', false);
-    };
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+      const messages = document.getElementById('messages');
+      const typingIndicator = document.getElementById('typing-indicator');
+      const usageIndicator = document.getElementById('usage-indicator');
 
-    // Event listener for input events
-    input.addEventListener('input', () => {
-      if (input.value) {
-        emitTypingEvent();
-      } else {
-        emitStopTypingEvent();
-      }
-    });
+      // Function to display typing indicator
+      const displayTypingIndicator = (text) => {
+        typingIndicator.textContent = text;
+      };
 
-    // Event listener for file input change
-    const fileInput = document.getElementById('file-input');
-    const selectButton = document.getElementById('select-button');
+      // Function to clear typing indicator
+      const clearTypingIndicator = () => {
+        typingIndicator.textContent = '';
+      };
 
-    selectButton.addEventListener('click', function() {
-      fileInput.click(); // Trigger click event on the hidden file input
-    });
+      // Function to emit typing events
+      const emitTypingEvent = () => {
+        socket.emit('typing', true);
+      };
 
-    fileInput.addEventListener('change', async function(event) {
-      const files = event.target.files;
-      for (const file of files) {
-        // Compress the image
-        const compressedImage = await compressImage(file);
-        if (compressedImage) {
-          // Convert the compressed image to base64
+      // Function to emit stop typing events
+      const emitStopTypingEvent = () => {
+        socket.emit('typing', false);
+      };
+
+      // Event listener for input events
+      input.addEventListener('input', () => {
+        if (input.value) {
+          emitTypingEvent();
+        } else {
+          emitStopTypingEvent();
+        }
+      });
+
+      // Event listener for file input change
+      const fileInput = document.getElementById('file-input');
+      const selectButton = document.getElementById('select-button');
+
+
+      selectButton.addEventListener('click', function() {
+        fileInput.click(); // Trigger click event on the hidden file input
+      });
+
+      fileInput.addEventListener('change', function(event) {
+        const files = event.target.files;
+        for (const file of files) {
           const reader = new FileReader();
           reader.onload = function() {
             const binaryData = reader.result;
             socket.emit('image message', binaryData);
           };
-          reader.readAsArrayBuffer(compressedImage); // Read the file as an ArrayBuffer
+          reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
         }
-      }
-    });
-
-    // Function to compress the image
-    const compressImage = async (file) => {
-      try {
-        const compressedFile = await imageCompression(file, 0.7); // Compress the image with a quality of 70%
-        return compressedFile;
-      } catch (error) {
-        console.error('Image compression error:', error);
-        return null;
-      }
-    };
-
-    socket.on('chat message', (msg, serverOffset) => {
-      appendMessage(msg, serverOffset);
-    });
-
-    socket.on('image message', function(binaryData) {
-      const blob = new Blob([binaryData], { type: 'image/jpeg' }); // Adjust the type based on your image type
-      const imageUrl = URL.createObjectURL(blob);
-      const imgPreview = document.createElement('div');
-      imgPreview.id = 'image-preview';
-      imgPreview.innerHTML = `<img src="${imageUrl}">`;
-      messages.appendChild(imgPreview);
-    });
-
-    // Function to append message to the messages list
-    function appendMessage(msg, serverOffset) {
-      const item = document.createElement('li');
-      item.innerHTML = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-      socket.auth.serverOffset = serverOffset;
-    }
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const timestamp = new Date().toLocaleString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
       });
-      if (input.value) {
-        const messageWithTimestamp = `${input.value} <span class="timestamp">( ${timestamp} )</span>`;
-        socket.emit('chat message', messageWithTimestamp);
-        input.value = '';
-        emitStopTypingEvent();
+
+
+      socket.on('chat message', (msg, serverOffset) => {
+        appendMessage(msg, serverOffset);
+      });
+
+      socket.on('image message', function(binaryData) {
+        const blob = new Blob([binaryData], { type: 'image/jpeg' }); // Adjust the type based on your image type
+        const imageUrl = URL.createObjectURL(blob);
+        const imgPreview = document.createElement('div');
+        imgPreview.id = 'image-preview';
+        imgPreview.innerHTML = `<img src="${imageUrl}">`;
+        messages.appendChild(imgPreview);
+      });
+
+      // Function to append message to the messages list
+      function appendMessage(msg, serverOffset) {
+        const item = document.createElement('li');
+        item.innerHTML = msg;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        socket.auth.serverOffset = serverOffset;
       }
-    });
 
-    // Handle 'typing' event from the server
-    socket.on('typing', (text) => {
-      displayTypingIndicator(text);
-    });
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const timestamp = new Date().toLocaleString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        if (input.value) {
+          const messageWithTimestamp = `${input.value} <span class="timestamp">( ${timestamp} )</span>`;
+          socket.emit('chat message', messageWithTimestamp);
+          input.value = '';
+          emitStopTypingEvent();
+        }
+      });
 
-    // Handle 'stop typing' event from the server
-    socket.on('stop typing', () => {
-      clearTypingIndicator();
-    });
 
-    // Call appUsageIndicator with activeClientsCount as an argument
-    socket.on('activeClients', (activeClientsCount) => {
-      appUsageIndicator(activeClientsCount);
-    });
+      // Handle 'typing' event from the server
+      socket.on('typing', (text) => {
+        displayTypingIndicator(text);
+      });
 
-    // Define appUsageIndicator function to accept activeClientsCount as an argument
-    const appUsageIndicator = (activeClientsCount) => {
-      if (activeClientsCount === 2) {
-        usageIndicator.textContent = `Ma and Mg are using the application.`;
-      } else if(activeClientsCount === 1){
-        usageIndicator.textContent = 'You are using the application alone.';
-      } else if(activeClientsCount > 2){
-        usageIndicator.textContent = 'Stranger is incoming to the Application';
-      } else {
-        usageIndicator.textContent = '';
-      }
-    };
+      // Handle 'stop typing' event from the server
+      socket.on('stop typing', () => {
+        clearTypingIndicator();
+      });
 
-    // Event listener to update app usage indicator based on the count of active clients
-    socket.on('activeClients', (activeClientsCount) => {
-      appUsageIndicator(activeClientsCount);
-    });
+      // Call appUsageIndicator with activeClientsCount as an argument
+      socket.on('activeClients', (activeClientsCount) => {
+        appUsageIndicator(activeClientsCount);
+      });
 
-    // Event listener for input events
-    input.addEventListener('input', () => {
-      if (input.value) {
-        emitTypingEvent();
-      } else {
-        emitStopTypingEvent();
-      }
-    });
+      // Define appUsageIndicator function to accept activeClientsCount as an argument
+      const appUsageIndicator = (activeClientsCount) => {
+        if (activeClientsCount === 2) {
+          usageIndicator.textContent = `Ma and Mg are using the application.`;
+        } else if(activeClientsCount === 1){
+          usageIndicator.textContent = 'You are using the application alone.';
+        } else if(activeClientsCount > 2){
+          usageIndicator.textContent = 'Stranger is incoming to the Application';
+        
+        } else {
+          usageIndicator.textContent = '';
+        }
+      };
 
-  </script>
-</body>
+      // Event listener to update app usage indicator based on the count of active clients
+      socket.on('activeClients', (activeClientsCount) => {
+        appUsageIndicator(activeClientsCount);
+      });
+
+      // Event listener for input events
+      input.addEventListener('input', () => {
+        if (input.value) {
+          emitTypingEvent();
+        } else {
+          emitStopTypingEvent();
+        }
+      });
+
+    </script>
+  </body>
 </html>
