@@ -4,7 +4,90 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>mkctl</title>
   <style>
-    /* Your CSS styles here */
+         body { 
+        margin: 0; 
+        padding-bottom: 3rem; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      }
+
+      #form { 
+        background: rgba(0, 0, 0, 0.15); 
+        padding: 0.25rem; 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        display: flex; 
+        height: 3rem; 
+        box-sizing: border-box; 
+        backdrop-filter: blur(10px); 
+      }
+
+      #input { 
+        border: none; 
+        padding: 0 1rem; 
+        flex-grow: 1; 
+        border-radius: 2rem; 
+        margin: 0.25rem; 
+      }
+
+      #input:focus { 
+        outline: none; 
+      }
+
+      #form > button { 
+        background: #333; 
+        border: none; 
+        padding: 0 1rem; 
+        margin: 0.25rem; 
+        border-radius: 3px; 
+        outline: none; 
+        color: #fff; 
+      }
+
+      #messages { 
+        list-style-type: none; 
+        margin: 0; 
+        padding: 0; 
+      }
+
+      #messages > li { 
+        padding: 0.5rem 1rem; 
+      }
+
+      .message {
+        background-color: inherit; /* This should match the background color assigned dynamically */
+        /* Add any other styling you want for messages */
+      }
+      
+      /* Customize timestamp */
+      .timestamp { 
+        font-size: 0.6em; 
+        /* Adjust font size */ 
+        color: gray; 
+        /* Adjust color */ 
+      }
+
+      /* Optional: Style for the file name display */
+      #file-name {
+        display: none;
+      }
+
+            /* Hide the default file input */
+            #file-input {
+        display: none;
+      }
+
+      #image-preview {
+        width: 100px;
+        height: 100px;
+        overflow: hidden; /* Ensure the image does not exceed the specified dimensions */
+        margin-top: 10px; /* Adjust margin */
+      }
+      #image-preview img {
+        width: 100%; /* Make the image fill the container horizontally */
+        height: auto; /* Maintain the aspect ratio */
+      }
   </style>
 </head>
 <body>
@@ -20,7 +103,8 @@
   </form>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.0.8/compressor.min.js"></script>
+  <script src="js/compressor.js"></script>
+
   <script>
     const socket = io({
       auth: {
