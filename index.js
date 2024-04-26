@@ -4,6 +4,7 @@ const { join } = require('path');
 const { Server } = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
+const sharp = require('sharp');
 
 
 async function main() {
@@ -93,7 +94,16 @@ async function main() {
 
     socket.on('image message', async (base64Data) => {
       try {
-        const result = await pool.query('INSERT INTO messages (image, client_offset) VALUES ($1, $2) RETURNING id', [Buffer.from(base64Data, 'base64'), socket.handshake.auth.serverOffset || 0]);
+        // Decode base64 image data
+        const buffer = Buffer.from(base64Data, 'base64');
+    
+        // Compress the image using Sharp
+        const compressedImageBuffer = await sharp(buffer)
+          .resize({ width: 800 }) // Adjust the width as needed
+          .toBuffer();
+    
+        // Insert the compressed image into the database
+        const result = await pool.query('INSERT INTO messages (image, client_offset) VALUES ($1, $2) RETURNING id', [compressedImageBuffer, socket.handshake.auth.serverOffset || 0]);
         const messageId = result.rows[0].id;
         const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${messageId}" target="_blank">View Image</a></li>`;
         io.emit('chat message', messageWithClass, messageId);
