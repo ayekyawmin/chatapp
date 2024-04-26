@@ -3,6 +3,8 @@ const { createServer } = require('http');
 const { join } = require('path');
 const { Server } = require('socket.io');
 const { Pool } = require('pg');
+const cors = require('cors');
+
 
 async function main() {
   let activeClients = 0;
@@ -23,6 +25,8 @@ async function main() {
   const io = new Server(server, {
     connectionStateRecovery: {}
   });
+
+  app.use(cors());
 
   // Map to store client IDs and their corresponding background colors
   const clientColors = new Map();
