@@ -77,7 +77,7 @@ async function main() {
 
     socket.on('chat message', async (msg) => {
       try {
-        const result = await pool.query('INSERT INTO massages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, socket.handshake.auth.serverOffset || 0]);
+        const result = await pool.query('INSERT INTO messages (content, client_offset) VALUES ($1, $2) RETURNING id', [msg, socket.handshake.auth.serverOffset || 0]);
         const messageId = result.rows[0].id;
         const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">${msg}</li>`;
         io.emit('chat message', messageWithClass, messageId);
@@ -89,7 +89,7 @@ async function main() {
 
     socket.on('image message', async (base64Data) => {
       try {
-        const result = await pool.query('INSERT INTO massages (image, client_offset) VALUES ($1, $2) RETURNING id', [Buffer.from(base64Data, 'base64'), socket.handshake.auth.serverOffset || 0]);
+        const result = await pool.query('INSERT INTO messages (image, client_offset) VALUES ($1, $2) RETURNING id', [Buffer.from(base64Data, 'base64'), socket.handshake.auth.serverOffset || 0]);
         const messageId = result.rows[0].id;
         const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${messageId}" target="_blank">View Image</a></li>`;
         io.emit('chat message', messageWithClass, messageId);
@@ -101,7 +101,7 @@ async function main() {
 
     if (!socket.recovered) {
       try {
-        const result = await pool.query('SELECT id, content, image FROM massages WHERE id > $1', [socket.handshake.auth.serverOffset || 0]);
+        const result = await pool.query('SELECT id, content, image FROM messages WHERE id > $1', [socket.handshake.auth.serverOffset || 0]);
         result.rows.forEach(row => {
           if (row.image) {
             const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${row.id}" target="_blank">View Image</a></li>`;
@@ -131,7 +131,7 @@ async function main() {
   app.get('/view/:id', async (req, res) => {
     const { id } = req.params;
     try {
-      const message = await pool.query('SELECT content, image FROM massages WHERE id = $1', [id]);
+      const message = await pool.query('SELECT content, image FROM messages WHERE id = $1', [id]);
       if (message.rows.length === 0) {
         return res.status(404).send('Message not found');
       }
