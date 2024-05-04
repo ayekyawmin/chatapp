@@ -116,7 +116,8 @@ async function main() {
 
     if (!socket.recovered) {
       try {
-        const result = await pool.query('SELECT id, content, image FROM messages WHERE id > $1', [socket.handshake.auth.serverOffset || 0]);
+        const result = await pool.query('SELECT id, content, image FROM messages WHERE id > $1 ORDER BY id ASC', [socket.handshake.auth.serverOffset || 0]);
+
         result.rows.forEach(row => {
           if (row.image) {
             const messageWithClass = `<li class="message" style="background-color: ${backgroundColor}">Image: <a href="/view/${row.id}" target="_blank">View Image</a></li>`;
