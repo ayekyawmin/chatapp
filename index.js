@@ -99,8 +99,8 @@ async function main() {
     
         // Compress the image using Sharp
         const compressedImageBuffer = await sharp(buffer)
-          .resize({ width: 800 }) // Adjust the width as needed
-          .jpeg({ quality: 90 }) // Adjust quality level as needed
+          .resize({ width: 1000 }) // Adjust the width as needed
+          .jpeg({ quality: 98 }) // Adjust quality level as needed
           .toBuffer();
     
         // Insert the compressed image into the database
