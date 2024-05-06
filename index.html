@@ -129,7 +129,7 @@
   <body>
 
     
-    <ul id="messages"></ul>
+    <ul id="messages" style="display: none;"></ul>
     
     <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
     <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
@@ -182,6 +182,7 @@
   const showMainForm = () => {
     form.style.display = 'flex';
     passwordForm.style.display = 'none';
+    messages.style.display = 'block';
   };
 
   // Event listener for password form submission
