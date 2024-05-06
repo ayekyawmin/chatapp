@@ -89,6 +89,41 @@
         height: auto; /* Maintain the aspect ratio */
       }
 
+
+
+            /* New CSS styles for the password form */
+            #password-form { 
+        background: rgba(0, 0, 0, 0.15); 
+        padding: 1rem; 
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); /* Center the form horizontally and vertically */
+        display: flex; 
+        flex-direction: column;
+        align-items: center;
+        border-radius: 10px;
+      }
+
+      #password-input { 
+        border: none; 
+        padding: 0.5rem; 
+        margin-bottom: 1rem;
+        border-radius: 5px;
+      }
+
+      #password-submit { 
+        background: #333; 
+        border: none; 
+        padding: 0.5rem 1rem; 
+        margin: 0.25rem; 
+        border-radius: 3px; 
+        outline: none; 
+        color: #fff; 
+        cursor: pointer;
+      }
+
+
     </style>
   </head>
   <body>
@@ -99,7 +134,12 @@
     <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
     <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
   
-    <form id="form" action="">
+    <form id="form" action="" style="display: none">
+
+
+
+
+
       <input id="input" autocomplete="off" /><button>Send</button>   
       <!-- Hidden file input -->
       <input type="file" accept="image/*" id="file-input" multiple>
@@ -110,6 +150,11 @@
 
 
       
+    </form>
+
+    <form id="password-form">
+      <input id="password-input" type="password" placeholder="Go to Signal">
+      <button id="password-submit">Submit</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -125,6 +170,34 @@
       const messages = document.getElementById('messages');
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
+
+      const passwordForm = document.getElementById('password-form');
+  const passwordInput = document.getElementById('password-input');
+  const passwordSubmit = document.getElementById('password-submit');
+  const passwordError = document.getElementById('password-error');
+
+
+
+  // Function to show main form and hide password form
+  const showMainForm = () => {
+    form.style.display = 'flex';
+    passwordForm.style.display = 'none';
+  };
+
+  // Event listener for password form submission
+  passwordSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const enteredPassword = passwordInput.value.trim();
+    const correctPassword = 'chital'; // Replace with your predefined password
+    if (enteredPassword === correctPassword) {
+      showMainForm(); // Show the main form if the password is correct
+    } else {
+      passwordError.style.display = 'block'; // Display error message if the password is incorrect
+    }
+  });
+
+
+
 
       // Function to display typing indicator
       const displayTypingIndicator = (text) => {
@@ -145,6 +218,9 @@
       const emitStopTypingEvent = () => {
         socket.emit('typing', false);
       };
+
+
+
 
       // Event listener for input events
       input.addEventListener('input', () => {
@@ -274,6 +350,8 @@
           emitStopTypingEvent();
         }
       });
+
+
 
     </script>
   </body>
