@@ -147,7 +147,7 @@
       <!-- Custom button for selecting files -->
       <button id="select-button">Photos</button>
 
-
+      <button id="startButton">Video</button>
 
       
     </form>
@@ -352,7 +352,14 @@
         }
       });
 
+    // Add an event listener to the button
+    document.getElementById('startButton').addEventListener('click', function() {
+      // Define the predefined page address
+      var predefinedPageAddress = 'https://mavid-b41c96f5db88.herokuapp.com/';
 
+      // Redirect the user to the predefined page
+      window.location.href = predefinedPageAddress;
+    });
 
     </script>
   </body>
