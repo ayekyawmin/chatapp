@@ -50,7 +50,6 @@ body {
   border-radius: 3px; 
   outline: none; 
   color: #fff; 
-  display: none;
 }
 
 #messages { 
@@ -153,10 +152,10 @@ body {
       
     <!-- Hidden file input -->
     <input type="file" accept="image/*" id="file-input" multiple style="display: none;">
-    <button style="flex-grow: 1;">Text</button> 
+    <button id="but1" style="flex-grow: 1; display: none;" >Text</button> 
     <!-- Custom button for selecting files -->
-    <button id="startButton" >Video</button>
-    <button id="select-button" >Photo</button>
+    <button id="startButton" style="display: none;" >Video</button>
+    <button id="select-button" style="display: none;" >Photo</button>
     
     
   </div>
@@ -184,6 +183,10 @@ body {
       const usageIndicator = document.getElementById('usage-indicator');
       const myconst = document.getElementById('mydiv');
       const myinput = document.getElementById('myinput');
+      const but1 = document.getElementById('but1');
+      const but2 = document.getElementById('startButton');
+      const but3 = document.getElementById('select-button');
+      
 
       const passwordForm = document.getElementById('password-form');
   const passwordInput = document.getElementById('password-input');
@@ -200,6 +203,9 @@ body {
     mydiv.style.display = 'block';
     mydiv.style.display = 'flex';
     myinput.style.display = 'block';
+    but1.style.display = 'block';
+    but2.style.display = 'block';
+    but3.style.display = 'block';
   };
 
   // Event listener for password form submission
