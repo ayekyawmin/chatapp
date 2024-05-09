@@ -23,6 +23,8 @@ body {
   height: auto; /* Allow form to expand vertically */
   box-sizing: border-box; 
   backdrop-filter: blur(10px); 
+  display: flex;
+  justify-content: space-between; /* Align buttons horizontally with space between them */
 }
 
 #input { 
@@ -31,6 +33,7 @@ body {
   padding: 0 1rem; 
   border-radius: 2rem; 
   margin: 0.25rem; 
+  flex: 1; /* Take remaining space in the flex container */
 }
 
 #input:focus { 
@@ -45,6 +48,8 @@ body {
   border-radius: 3px; 
   outline: none; 
   color: #fff; 
+    flex: 0 0 auto; /* Allow buttons to shrink and grow as needed */
+  width: calc(33.33% - 0.5rem); /* Set width for each button, considering margin */
 }
 
 #messages { 
