@@ -147,16 +147,20 @@ body {
 
       <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
       <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
+ </div>
+<form id="form" action="" style="display: none; display: flex; flex-direction: column;">
+  <input id="input" autocomplete="off" style="margin-bottom: 0.5rem; width:100%;" />
+  <div style="display: flex; justify-content: space-between;">
+    <button style="margin-bottom: 0.5rem; flex-grow: 1;">Text</button>   
+    <!-- Hidden file input -->
+    <input type="file" accept="image/*" id="file-input" multiple style="display: none;">
+    <!-- Custom button for selecting files -->
+    <button id="select-button" style="margin-bottom: 0.5rem;">Photo</button>
+    <button id="startButton">Video</button>
+  </div>
+</form>
 
-      <form id="form" action="" style="display: none;">
-        <input id="input" autocomplete="off" />
-        <!-- Hidden file input -->
-        <input type="file" accept="image/*" id="file-input" multiple>
-        <!-- Custom button for selecting files -->
-        <button id="select-button">Photos</button>
-        <button id="startButton">Video</button>
-      </form>
-    </div>
+   
 
     <form id="password-form">
       <input id="password-input" type="password" placeholder="Go to Signal">
