@@ -30,7 +30,7 @@ body {
   backdrop-filter: blur(10px); 
 }
 
-#input { 
+#myinput { 
   border: none; 
   padding: 0 1rem; 
   border-radius: 2rem; 
@@ -148,7 +148,7 @@ body {
       <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
  
 <form id="form" action="" style="display: none; display: flex; flex-direction: column;">
-  <input id="input" autocomplete="off" style="margin-bottom: 0.5rem; width:100%;" />
+  <input id="myinput" autocomplete="off" style="margin-bottom: 0.5rem; width:100%; display: none;" />
   <div id="mydiv" style="justify-content: space-between;">
       
     <!-- Hidden file input -->
@@ -183,7 +183,7 @@ body {
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
       const myconst = document.getElementById('mydiv');
-      const myinput = document.getElementById('input');
+      const myinput = document.getElementById('myinput');
 
       const passwordForm = document.getElementById('password-form');
   const passwordInput = document.getElementById('password-input');
