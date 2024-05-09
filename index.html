@@ -4,139 +4,129 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>mkctl</title>
     <style>
-      body { 
-        margin: 0; 
-        padding-bottom: 3rem; 
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      }
+body { 
+  margin: 0; 
+  padding-bottom: 3rem; 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+}
 
-      #form { 
-        background: rgba(0, 0, 0, 0.15); 
-        padding: 0.25rem; 
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        right: 0; 
-        display: flex; 
-        height: 3rem; 
-        box-sizing: border-box; 
-        backdrop-filter: blur(10px); 
-      }
+#form { 
+  background: rgba(0, 0, 0, 0.15); 
+  padding: 0.25rem; 
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  right: 0; 
+  display: flex; 
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  height: auto; /* Allow form to expand vertically */
+  box-sizing: border-box; 
+  backdrop-filter: blur(10px); 
+}
 
-      #input { 
-        border: none; 
-        padding: 0 1rem; 
-        flex-grow: 1; 
-        border-radius: 2rem; 
-        margin: 0.25rem; 
-      }
+#input { 
+  border: none; 
+  padding: 0 1rem; 
+  border-radius: 2rem; 
+  margin: 0.25rem; 
+}
 
-      #input:focus { 
-        outline: none; 
-      }
+#input:focus { 
+  outline: none; 
+}
 
-      #form > button { 
-        background: #333; 
-        border: none; 
-        padding: 0 1rem; 
-        margin: 0.25rem; 
-        border-radius: 3px; 
-        outline: none; 
-        color: #fff; 
-      }
+#form > button { 
+  background: #333; 
+  border: none; 
+  padding: 0.5rem 1rem; 
+  margin: 0.25rem; 
+  border-radius: 3px; 
+  outline: none; 
+  color: #fff; 
+}
 
-      #messages { 
-        list-style-type: none; 
-        margin: 0; 
-        padding: 0; 
-      }
+#messages { 
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0; 
+}
 
-      #messages > li { 
-        padding: 0.5rem 1rem; 
-      }
+#messages > li { 
+  padding: 0.5rem 1rem; 
+}
 
-      .message {
-        background-color: inherit; /* This should match the background color assigned dynamically */
-        /* Add any other styling you want for messages */
-      }
-      
-      /* Customize timestamp */
-      .timestamp { 
-        font-size: 0.6em; 
-        /* Adjust font size */ 
-        color: gray; 
-        /* Adjust color */ 
-      }
+.timestamp { 
+  font-size: 0.6em; 
+  color: gray; 
+}
 
-      /* Optional: Style for the file name display */
-      #file-name {
-        display: none;
-      }
+#file-name {
+  display: none;
+}
 
-            /* Hide the default file input */
-            #file-input {
-        display: none;
-      }
+#file-input {
+  display: none;
+}
 
-      #image-preview {
-        width: 100px;
-        height: 100px;
-        overflow: hidden; /* Ensure the image does not exceed the specified dimensions */
-        margin-top: 10px; /* Adjust margin */
-      }
-      #image-preview img {
-        width: 100%; /* Make the image fill the container horizontally */
-        height: auto; /* Maintain the aspect ratio */
-      }
+#image-preview {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin-top: 10px;
+}
 
+#image-preview img {
+  width: 100%;
+  height: auto;
+}
 
+#password-form { 
+  background: rgba(0, 0, 0, 0.15); 
+  padding: 1rem; 
+  position: fixed; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+}
 
-            /* New CSS styles for the password form */
-            #password-form { 
-        background: rgba(0, 0, 0, 0.15); 
-        padding: 1rem; 
-        position: fixed; 
-        top: 50%; 
-        left: 50%; 
-        transform: translate(-50%, -50%); /* Center the form horizontally and vertically */
-        display: flex; 
-        flex-direction: column;
-        align-items: center;
-        border-radius: 10px;
-      }
+#password-input { 
+  border: none; 
+  padding: 0.5rem; 
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
 
-      #password-input { 
-        border: none; 
-        padding: 0.5rem; 
-        margin-bottom: 1rem;
-        border-radius: 5px;
-      }
+#password-submit { 
+  background: #333; 
+  border: none; 
+  padding: 0.5rem 1rem; 
+  margin: 0.25rem; 
+  border-radius: 3px; 
+  outline: none; 
+  color: #fff; 
+  cursor: pointer;
+}
 
-      #password-submit { 
-        background: #333; 
-        border: none; 
-        padding: 0.5rem 1rem; 
-        margin: 0.25rem; 
-        border-radius: 3px; 
-        outline: none; 
-        color: #fff; 
-        cursor: pointer;
-      }
-
-      @media only screen and (max-width: 600px) {
-  /* Adjust styles for smaller screens */
+@media only screen and (max-width: 600px) {
   #input {
     padding: 0.5rem; /* Increase padding for better touch input */
   }
 
   #form {
     height: auto; /* Allow form to expand vertically on smaller screens */
+    flex-direction: column; /* Stack items vertically */
   }
 
   #form > button {
-    padding: 0.5rem; /* Adjust button padding */
+    margin: 0.25rem 0; /* Add margin to separate buttons vertically */
   }
 }
+
 
 
     </style>
