@@ -9,7 +9,10 @@ body {
   padding-bottom: 3rem; 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
 }
-
+#container {
+  display: flex;
+  flex-direction: column;
+}
 #form { 
   background: rgba(0, 0, 0, 0.15); 
   padding: 0.25rem; 
@@ -139,29 +142,21 @@ body {
   </head>
   <body>
 
-    
-    <ul id="messages" style="display: none;"></ul>
-    
-    <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
-    <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
-  
-    <form id="form" action="" style="display: none;">
+    <div id="container">
+      <ul id="messages" style="display: none;"></ul>
 
+      <div id="usage-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- App usage indicator -->
+      <div id="typing-indicator" style="height:3rem; color:gray; font-style: italic; margin-left: 1rem;"></div> <!-- New element to display typing indicator -->
 
-
-
-
-      <input id="input" autocomplete="off" /><button>Text</button>   
-      <!-- Hidden file input -->
-      <input type="file" accept="image/*" id="file-input" multiple>
-  
-      <!-- Custom button for selecting files -->
-      <button id="select-button">Photos</button>
-
-      <button id="startButton">Video</button>
-
-      
-    </form>
+      <form id="form" action="" style="display: none;">
+        <input id="input" autocomplete="off" />
+        <!-- Hidden file input -->
+        <input type="file" accept="image/*" id="file-input" multiple>
+        <!-- Custom button for selecting files -->
+        <button id="select-button">Photos</button>
+        <button id="startButton">Video</button>
+      </form>
+    </div>
 
     <form id="password-form">
       <input id="password-input" type="password" placeholder="Go to Signal">
