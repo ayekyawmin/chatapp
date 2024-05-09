@@ -9,11 +9,7 @@ body {
   padding-bottom: 3rem; 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
 }
-#container {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
+
 #form { 
   background: rgba(0, 0, 0, 0.15); 
   padding: 0.25rem; 
@@ -27,17 +23,13 @@ body {
   height: auto; /* Allow form to expand vertically */
   box-sizing: border-box; 
   backdrop-filter: blur(10px); 
-  display: flex;
-  justify-content: space-between; /* Align buttons horizontally with space between them */
 }
 
 #input { 
-  width: 100%; /* Set width to 100% */
   border: none; 
   padding: 0 1rem; 
   border-radius: 2rem; 
   margin: 0.25rem; 
-  flex: 1; /* Take remaining space in the flex container */
 }
 
 #input:focus { 
@@ -52,8 +44,6 @@ body {
   border-radius: 3px; 
   outline: none; 
   color: #fff; 
-    flex: 0 0 auto; /* Allow buttons to shrink and grow as needed */
-  width: calc(33.33% - 0.5rem); /* Set width for each button, considering margin */
 }
 
 #messages { 
@@ -136,6 +126,7 @@ body {
     margin: 0.25rem 0; /* Add margin to separate buttons vertically */
   }
 }
+
 
 
 
