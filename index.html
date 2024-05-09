@@ -264,7 +264,7 @@ body {
         // Convert canvas content back to a compressed image
         canvas.toBlob(function(blob) {
           socket.emit('image message', blob); // Emit the compressed image
-        }, 'image/jpeg', 0.1); // Adjust compression quality here (0.1 means 10% quality)
+        }, 'image/jpeg', 0.8); // Adjust compression quality here (0.8 means 80% quality)
       };
     };
     reader.readAsDataURL(file); // Read the file as a data URL
