@@ -35,6 +35,7 @@ body {
   padding: 0 1rem; 
   border-radius: 2rem; 
   margin: 0.25rem; 
+  display: none;
 }
 
 #input:focus { 
@@ -182,6 +183,7 @@ body {
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
       const myconst = document.getElementById('mydiv');
+      const myinput = document.getElementById('input');
 
       const passwordForm = document.getElementById('password-form');
   const passwordInput = document.getElementById('password-input');
@@ -195,7 +197,9 @@ body {
     form.style.display = 'flex';
     passwordForm.style.display = 'none';
     messages.style.display = 'block';
+    mydiv.style.display = 'block';
     mydiv.style.display = 'flex';
+    myinput.style.display = 'block';
   };
 
   // Event listener for password form submission
