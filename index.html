@@ -147,7 +147,7 @@ body {
  
 <form id="form" action="" style="display: none; display: flex; flex-direction: column;">
   <input id="input" autocomplete="off" style="margin-bottom: 0.5rem; width:100%;" />
-  <div id="myDiv" style="justify-content: space-between;">
+  <div id="myDiv" style="justify-content: space-between; display: none">
       
     <!-- Hidden file input -->
     <input type="file" accept="image/*" id="file-input" multiple style="display: none;">
@@ -180,6 +180,7 @@ body {
       const messages = document.getElementById('messages');
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
+      const okok = document.getElementById('myDiv');
 
       
 
@@ -196,6 +197,7 @@ body {
     passwordForm.style.display = 'none';
     messages.style.display = 'block';
     input.style.display = 'block';
+    okok.style.display = 'block';
 
 
   };
