@@ -30,7 +30,7 @@ body {
   backdrop-filter: blur(10px); 
 }
 
-#myinput { 
+#myInput { 
   border: none; 
   padding: 0 1rem; 
   border-radius: 2rem; 
@@ -42,7 +42,7 @@ body {
   outline: none; 
 }
 
-#mydiv > button { 
+#myDiv > button { 
   background: #333; 
   border: none; 
   padding: 0.5rem 1rem; 
@@ -50,6 +50,7 @@ body {
   border-radius: 3px; 
   outline: none; 
   color: #fff; 
+  display: none;
 }
 
 #messages { 
@@ -181,8 +182,8 @@ body {
       const messages = document.getElementById('messages');
       const typingIndicator = document.getElementById('typing-indicator');
       const usageIndicator = document.getElementById('usage-indicator');
-      const myconst = document.getElementById('mydiv');
-      const myinput = document.getElementById('myinput');
+      const myDiv = document.getElementById('myDiv');
+      const myInput = document.getElementById('myInput');
 
       
 
