@@ -202,39 +202,19 @@ body {
 
   };
 
-  // Event listener for password form submission
-  //passwordSubmit.addEventListener('click', (e) => {
-   /// e.preventDefault();
-   // const enteredPassword = passwordInput.value.trim();
-   // const correctPassword = 'ayctl'; // Replace with your predefined password
-  //  if (enteredPassword === correctPassword) {
-  ///    showMainForm(); // Show the main form if the password is correct
-  //  } else {
-  //    passwordError.style.display = 'block'; // Display error message if the password is incorrect
-  //  }
- // });
+   Event listener for password form submission
+  passwordSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const enteredPassword = passwordInput.value.trim();
+    const correctPassword = 'ayctl'; // Replace with your predefined password
+    if (enteredPassword === correctPassword) {
+      showMainForm(); // Show the main form if the password is correct
+    } else {
+     passwordError.style.display = 'block'; // Display error message if the password is incorrect
+    }
+  });
 
-          document.getElementById('password-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const enteredPassword = document.getElementById('password-input').value.trim();
 
-      const response = await fetch('/check-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ password: enteredPassword })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        document.getElementById('mainForm').style.display = 'block'; // Show the main form if the password is correct
-        document.getElementById('password-form').style.display = 'none'; // Hide the password form
-      } else {
-        document.getElementById('passwordError').style.display = 'block'; // Display error message if the password is incorrect
-      }
-    });
 
 
 
