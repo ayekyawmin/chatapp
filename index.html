@@ -214,7 +214,7 @@ body {
   //  }
  // });
 
-          document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+          document.getElementById('password-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const enteredPassword = document.getElementById('passwordInput').value.trim();
 
@@ -230,7 +230,7 @@ body {
 
       if (result.success) {
         document.getElementById('mainForm').style.display = 'block'; // Show the main form if the password is correct
-        document.getElementById('passwordForm').style.display = 'none'; // Hide the password form
+        document.getElementById('password-form').style.display = 'none'; // Hide the password form
       } else {
         document.getElementById('passwordError').style.display = 'block'; // Display error message if the password is incorrect
       }
