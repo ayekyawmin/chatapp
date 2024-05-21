@@ -6,7 +6,6 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const sharp = require('sharp');
 
-require('dotenv').config(); // Load environment variables
 
 
 
