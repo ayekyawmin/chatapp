@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
 const sharp = require('sharp');
-require('dotenv').config(); // Load environment variables
+
 
 
 async function main() {
@@ -29,20 +29,6 @@ async function main() {
   });
 
   app.use(cors());
-  app.use(express.json()); // To parse JSON bodies
-
-
-// API route to check the password
-app.post('/check-password', (req, res) => {
-  const enteredPassword = req.body.password;
-  const correctPassword = process.env.PASSWORD; // Retrieve password from environment variable
-
-  if (enteredPassword === correctPassword) {
-    res.json({ success: true });
-  } else {
-    res.json({ success: false });
-  }
-});
   
 
   // Map to store client IDs and their corresponding background colors
