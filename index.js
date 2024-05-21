@@ -28,8 +28,7 @@ async function main() {
     connectionStateRecovery: {}
   });
 
-  app.use(cors());
-  
+  app.use(cors());  
 
   // Map to store client IDs and their corresponding background colors
   const clientColors = new Map();
