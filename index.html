@@ -216,7 +216,7 @@ body {
 
           document.getElementById('password-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const enteredPassword = document.getElementById('input').value.trim();
+      const enteredPassword = document.getElementById('password-input').value.trim();
 
       const response = await fetch('/check-password', {
         method: 'POST',
