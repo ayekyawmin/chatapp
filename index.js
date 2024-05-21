@@ -30,8 +30,26 @@ async function main() {
 
   app.use(cors());  
 
+  app.use(express.json()); // To parse JSON bodies
+
   // Map to store client IDs and their corresponding background colors
   const clientColors = new Map();
+
+
+// API route to check the password
+app.post('/check-password', (req, res) => {
+  const enteredPassword = req.body.password;
+  const correctPassword = process.env.PASSWORD; // Retrieve password from environment variable
+
+  if (enteredPassword === correctPassword) {
+    res.json({ success: true });
+  } else {
+    res.json({ success: false });
+  }
+});
+
+
+  
 
   app.get('/', (req, res) => {
     res.sendFile(join(__dirname, 'index.html'));
