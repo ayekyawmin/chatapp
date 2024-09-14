@@ -13,11 +13,11 @@ async function main() {
   let activeClients = 0;
 
   const pool = new Pool({
-  user: process.env.DB_USER || 'wdeoeuowawntht',
-  host: process.env.DB_HOST || 'ec2-35-169-11-108.compute-1.amazonaws.com',
-  database: process.env.DB_DATABASE || 'd3bv57bgbaiojp',
-  password: process.env.DB_PASSWORD || 'd79b77f0982cf3383572a878d6b06bfde4b437eb861e9a80d6bea7fe7dabbc93',
-  port: process.env.DB_PORT || 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
     ssl: {
       rejectUnauthorized: false // Added SSL configuration
     }
